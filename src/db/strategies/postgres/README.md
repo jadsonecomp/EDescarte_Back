@@ -75,3 +75,9 @@ docker ps
 ```shell
     npm i hapi
 ```
+
+## Instalando o Swagger
+
+```shell
+    npm i vision inert hapi-swagger
+```

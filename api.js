@@ -10,6 +10,19 @@ const PontoMaterialSchema = require('./src/db/strategies/postgres/schemas/pontoM
 const DescarteSchema = require('./src/db/strategies/postgres/schemas/descarteSchema')
 const TabelasRoutes = require('./src/routes/tabelasRoutes')
 
+const HapiSwagger = require('hapi-swagger')
+const Inert = require('@hapi/inert')//require('inert')
+const Vision = require('vision')
+
+const swaggerConfig = {
+    info: {
+        title: '#CursoNodeBR - API Herois',
+        version: 'v1.0'
+    },
+    lang: 'pt'
+
+}
+
 let contextCliente = {}
 let contextEndereco = {}
 let contextPontoColeta = {}
@@ -172,6 +185,16 @@ async function main() {
     
     contextDescarte = new Context(new PostgresDB(connection, modelDescarte));
     
+
+    // await app.register([
+    //     Inert,
+    //     Vision,
+    //     {
+    //         plugin: HapiSwagger,
+    //         options: swaggerConfig
+    //     }
+    // ])
+
     // app.validator(Joi)
     app.route([
 
