@@ -1,4 +1,4 @@
-const Hapi = require('hapi')
+const Hapi = require('hapi')//require('@hapi/hapi')
 const Joi = require('joi')
 const Context = require('./src/db/strategies/base/contextStrategy')
 const PostgresDB = require('./src/db/strategies/postgres/postgresSQLStrategy')
@@ -11,12 +11,12 @@ const DescarteSchema = require('./src/db/strategies/postgres/schemas/descarteSch
 const TabelasRoutes = require('./src/routes/tabelasRoutes')
 
 const HapiSwagger = require('hapi-swagger')
-const Inert = require('@hapi/inert')//require('inert')
-const Vision = require('vision')
+const Inert = require('inert')//require('@hapi/inert')
+const Vision = require('vision')//require('@hapi/vision')
 
 const swaggerConfig = {
     info: {
-        title: '#CursoNodeBR - API Herois',
+        title: 'API EDescarte',
         version: 'v1.0'
     },
     lang: 'pt'
@@ -186,14 +186,14 @@ async function main() {
     contextDescarte = new Context(new PostgresDB(connection, modelDescarte));
     
 
-    // await app.register([
-    //     Inert,
-    //     Vision,
-    //     {
-    //         plugin: HapiSwagger,
-    //         options: swaggerConfig
-    //     }
-    // ])
+    await app.register([
+        Inert,
+        Vision,
+        {
+            plugin: HapiSwagger,
+            options: swaggerConfig
+        }
+    ])
 
     // app.validator(Joi)
     app.route([
@@ -213,4 +213,12 @@ async function main() {
 
     return app;
 }
+
+process.on('unhandledRejection', (err) => {
+
+    console.log(err);
+    process.exit(1);
+});
+
+
 module.exports = main()

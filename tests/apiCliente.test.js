@@ -35,13 +35,9 @@ function cadastrar2() {
 
 describe('API EDescarte tabela Cliente test suite', function ()  {
     this.beforeAll(async () => {
-        console.log('01')
         app = await api
-        console.log('02')
         const result = await cadastrar2()
-        console.log('03, payload: ', result.payload)
         MOCK_ID = JSON.parse(result.payload).id
-        console.log('04')
     })
 
     it('listar /cliente', async () => {
@@ -71,9 +67,9 @@ describe('API EDescarte tabela Cliente test suite', function ()  {
             }
         })
         const payload = JSON.parse(result.payload)
-        //assert.strictEqual(result.statusCode, 400) ver tratamentos depois
-        assert.strictEqual(result.statusCode, 500)
-        //assert.ok(payload.message.search('"nome" is required') !== -1)
+        assert.strictEqual(result.statusCode, 400) 
+        //assert.strictEqual(result.statusCode, 500)
+        assert.ok(payload.message.search('"nome" is required') !== -1)
     })
     it('atualizar /cliente/{id}', async () => {
         console.log('MOCK_ID: ', MOCK_ID)
