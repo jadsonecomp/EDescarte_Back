@@ -50,6 +50,18 @@ class PostgreSQLStrategy extends IDb {
     }
   }
 
+  async closeConnection() {
+    try {
+      // await this._connect();
+      await this._connection.close();
+      return true;
+    } catch (error) {
+      console.error('fail!', error);
+      return false;
+    }
+  }
+
+
   create(item) {
     return this._db.create(item, {
       raw: true

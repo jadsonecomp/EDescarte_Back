@@ -64,7 +64,9 @@ describe('Testando PostgreSQL Strategy no CRUD de Ponto de Coleta - pontoColetaS
 
   it('PostgresSQL connection', async () => {
     const result = await contextCliente.isConnected();
+    const result2 = await contextPontoColeta.isConnected();
     strictEqual(result, true);
+    strictEqual(result2, true);
   });
 
   it('cadastrar', async () => {
@@ -107,5 +109,15 @@ describe('Testando PostgreSQL Strategy no CRUD de Ponto de Coleta - pontoColetaS
     const [item] = await contextPontoColeta.read({});
     const result = await contextPontoColeta.delete(item.id);
     deepStrictEqual(result, 1);
+  });
+
+  it('PostgresSQL close connection cliente', async () => {
+    const result = await contextCliente.closeConnection();
+    strictEqual(result, true);
+  });
+
+  it('PostgresSQL close connection ponto coleta', async () => {
+    const result = await contextPontoColeta.closeConnection();
+    strictEqual(result, true);
   });
 });

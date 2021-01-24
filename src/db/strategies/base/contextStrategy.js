@@ -8,6 +8,9 @@ class ContextStrategy extends IDb {
   isConnected() {
     return this._database.isConnected();
   }
+  closeConnection() {
+    return this._database.closeConnection();
+  }
   connect() {
     return this._database.connect()
   }

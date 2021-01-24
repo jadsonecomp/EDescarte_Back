@@ -51,21 +51,21 @@ const EnderecoSchema = {
             allowNull: false,
             unique: true,
         },
-        // id_cliente: {
-        //     type: Sequelize.INTEGER,
-        //     require: true,
-        //     allowNull: false,
-        //     unique: true,
+        id_cliente: {
+            type: Sequelize.INTEGER,
+            require: true,
+            allowNull: false,
+            unique: true,
 
-        //     references: {
+            references: {
               
-        //       //model: modelCliente,
-        //       model: ClienteSchema,             
-        //       key: 'id',                    
-        //       deferrable: Sequelize.INITIALLY_IMMEDIATE,
+              //model: modelCliente,
+              model: ClienteSchema,             
+              key: 'id',                    
+              deferrable: Sequelize.INITIALLY_IMMEDIATE,
               
-        //     },
-        //   },
+            },
+          },
         
     },
     options: {

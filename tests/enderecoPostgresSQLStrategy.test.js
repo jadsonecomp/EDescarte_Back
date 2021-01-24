@@ -21,9 +21,10 @@ describe('Testando PostgreSQL Strategy no CRUD de Endereço - enderecoSchema', f
   before(async () => {
     
     const connection = await PostgresStrategy.connect()
+    
     const modelCliente = await PostgresStrategy.defineModel(connection, ClienteSchema)
    
-    //EnderecoSchema.schema.id_cliente.references.model = modelCliente
+    EnderecoSchema.schema.id_cliente.references.model = modelCliente
     
     const modelEndereco = await PostgresStrategy.defineModel(connection, EnderecoSchema)
    
@@ -36,6 +37,7 @@ describe('Testando PostgreSQL Strategy no CRUD de Endereço - enderecoSchema', f
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
+    
     modelEndereco.belongsTo(modelCliente, {
         constraint: true, 
         foreignKey: {
@@ -45,10 +47,8 @@ describe('Testando PostgreSQL Strategy no CRUD de Endereço - enderecoSchema', f
         onUpdate: 'CASCADE'
     })
 
-
     const forceSyncCli = await modelCliente.sync({force: true});
     const forceSyncPC = await modelEndereco.sync({force: true});
-    
     
     contextCliente = new Context(new PostgresStrategy(connection, modelCliente));
     contextEndereco = new Context(new PostgresStrategy(connection, modelEndereco));
@@ -64,7 +64,9 @@ describe('Testando PostgreSQL Strategy no CRUD de Endereço - enderecoSchema', f
 
   it('PostgresSQL connection', async () => {
     const result = await contextEndereco.isConnected();
+    const result2 = await contextCliente.isConnected();
     strictEqual(result, true);
+    strictEqual(result2, true);
   });
 
   it('cadastrar', async () => {
@@ -106,5 +108,15 @@ describe('Testando PostgreSQL Strategy no CRUD de Endereço - enderecoSchema', f
     const [item] = await contextEndereco.read({});
     const result = await contextEndereco.delete(item.id);
     deepStrictEqual(result, 1);
+  });
+
+  it('PostgresSQL close connection cliente', async () => {
+    const result = await contextCliente.closeConnection();
+    strictEqual(result, true);
+  });
+
+  it('PostgresSQL close connection endereco', async () => {
+    const result = await contextEndereco.closeConnection();
+    strictEqual(result, true);
   });
 });

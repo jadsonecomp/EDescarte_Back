@@ -18,9 +18,6 @@ describe('Testando PostgreSQL Strategy no CRUD de cliente - clienteSchema', func
   before(async () => {
     const connection = await PostgresStrategy.connect()
     const model = await PostgresStrategy.defineModel(connection, ClienteSchema)
-    console.log('ClienteSchema.option: ', ClienteSchema.options)
-    console.log('ClienteSchema.name: ', ClienteSchema.name)
-    console.log('ClienteSchema.schema: ', ClienteSchema.schema)
     
     context = new Context(new PostgresStrategy(connection, model));
   
@@ -73,5 +70,10 @@ describe('Testando PostgreSQL Strategy no CRUD de cliente - clienteSchema', func
     const [item] = await context.read({});
     const result = await context.delete(item.id);
     deepStrictEqual(result, 1);
+  });
+
+  it('PostgresSQL close connection', async () => {
+    const result = await context.closeConnection();
+    strictEqual(result, true);
   });
 });
