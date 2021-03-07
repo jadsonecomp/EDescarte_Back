@@ -45,7 +45,7 @@ const ClienteSchema = {
             unique: true,
         },
         senha: {
-            type: Sequelize.STRING(20),
+            type: Sequelize.STRING(100),
             require: true,
             allowNull: false,
         },

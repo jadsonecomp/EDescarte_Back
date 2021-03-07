@@ -1,3 +1,27 @@
+const {
+    join
+} = require('path')
+const {
+    config
+} = require('dotenv')
+
+const {
+    ok
+} = require('assert')
+
+const env = process.env.NODE_ENV || "dev"
+ok(env === "prod" || env === "dev", "environment inválida! Ou prod ou dev")
+
+console.log(`Ambiente de ${env}`)
+
+const configPath = join('./config', `.env.${env}`)
+
+config({
+    path: configPath
+})
+
+
+
 const Hapi = require('hapi')//require('@hapi/hapi')
 const Joi = require('joi')
 const Context = require('./src/db/strategies/base/contextStrategy')
@@ -9,10 +33,14 @@ const MaterialRecicladoSchema = require('./src/db/strategies/postgres/schemas/ma
 const PontoMaterialSchema = require('./src/db/strategies/postgres/schemas/pontoMaterialSchema')
 const DescarteSchema = require('./src/db/strategies/postgres/schemas/descarteSchema')
 const TabelasRoutes = require('./src/routes/tabelasRoutes')
+const AuthRoutes = require('./src/routes/authRoutes')
 
 const HapiSwagger = require('hapi-swagger')
 const Inert = require('inert')//require('@hapi/inert')
 const Vision = require('vision')//require('@hapi/vision')
+const Jwt = require('jsonwebtoken')
+const HapiJwt = require('hapi-auth-jwt2')
+const MINHA_CHAVE_SECRETA = process.env.JWT_KEY
 
 const swaggerConfig = {
     info: {
@@ -38,7 +66,7 @@ const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
 
 const app = new Hapi.Server({
-    port: 4000
+    port: process.env.PORT//4000
 })
 
 function mapRoutes(instance, methods) {
@@ -187,6 +215,7 @@ async function main() {
     
 
     await app.register([
+        HapiJwt,
         Inert,
         Vision,
         {
@@ -194,6 +223,21 @@ async function main() {
             options: swaggerConfig
         }
     ])
+
+    app.auth.strategy('jwt', 'jwt', {
+        key: MINHA_CHAVE_SECRETA,
+        options: {
+            expiresIn: 86400
+        },
+        validate: (dado, request) => {
+            return {
+                isValid: true
+            }
+        }
+    })
+
+
+    app.auth.default('jwt')
 
     // app.validator(Joi)
     app.route([
@@ -203,7 +247,8 @@ async function main() {
         ...mapRoutes(new TabelasRoutes(contextPontoColeta, pontoColetaRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextMaterialReciclado, materialRecicladoRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextPontoMaterial, pontoMaterialRoute), TabelasRoutes.methods()),
-        ...mapRoutes(new TabelasRoutes(contextDescarte, descarteRoute), TabelasRoutes.methods())
+        ...mapRoutes(new TabelasRoutes(contextDescarte, descarteRoute), TabelasRoutes.methods()),
+        ...mapRoutes(new AuthRoutes(MINHA_CHAVE_SECRETA, contextCliente), AuthRoutes.methods())
 
     ])
 

@@ -19,24 +19,51 @@ class PostgreSQLStrategy extends IDb {
   }
 
   static async connect() {
-    const sequelize  = new Sequelize(
-      'edescarte', //database
-      'admin', // user
-      'root', //senha
-      {
-        host: 'localhost',
-        dialect: 'postgres',
-        // case sensitive
-        quoteIdentifiers: false,
-        // deprecation warning
-        operatorsAliases: false,
-        //disable logging
-        logging: false
-        // dialectOptions: {
-        //   ssl: true,
-      },
-    );
-    return sequelize
+    const ambiente = process.env.SSL_DB
+    
+    if (ambiente === 'false') { //Ambiente de desenvolvimento
+      const sequelize  = new Sequelize(
+        // 'edescarte', //database
+        // 'admin', // user
+        // 'root', //senha
+        process.env.POSTGRES_URL,
+        {
+          // host: 'localhost',
+          // dialect: 'postgres',
+          // case sensitive
+          quoteIdentifiers: false,
+          // deprecation warning
+          operatorsAliases: false,
+          //disable logging
+          logging: false
+          // dialectOptions: {
+          //   ssl: true,
+        },
+      );
+
+      return sequelize
+    }else{    //Ambiente Produção
+      const sequelize  = new Sequelize(
+        process.env.POSTGRES_URL,
+        {
+          // case sensitive
+          quoteIdentifiers: false,
+          // deprecation warning
+          operatorsAliases: false,
+          //disable logging
+          logging: false,
+          dialectOptions: {
+            ssl: {
+              require: process.env.SSL_DB,
+              rejectUnauthorized: process.env.SSL_DBF // <<<<<<< YOU NEED THIS
+            }
+          }
+        },
+      );
+
+      return sequelize
+    }
+    
   }
 
   async isConnected() {

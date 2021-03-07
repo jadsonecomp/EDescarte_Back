@@ -1,5 +1,6 @@
 const BaseRoute = require('./base/baseRoute')
 const Joi = require('joi')
+const PasswordHelper = require('./../helpers/passwordHelper')
 
 const clienteRoute = 'cliente'
 const enderecoRoute = 'endereco'
@@ -22,11 +23,19 @@ class TabelasRoutes extends BaseRoute {
             handler: (request, headers) => {
                 return this.db.read()
             },
-            options: {
+            config: {
                 description: `Listar ${this.tablePath}`,
                 notes: `Lista todos os dados da tabela ${this.tablePath}`,
-                tags: ['api'] // ADD THIS TAG
+                tags: ['api'], // ADD THIS TAG
+                validate: {
+                    headers: Joi.object({
+                        authorization: Joi.string().required()
+                    }).unknown()
+                }
             },
+            handler: (request, headers) => {
+                return this.db.read()
+            }
         }
     }
     create() {
@@ -37,6 +46,8 @@ class TabelasRoutes extends BaseRoute {
                 path: `/${this.tablePath}`,
                 method: 'POST',
                 config: {
+
+                    auth: false, //Não pedir autorização nessa rota
 
                     description: `Cadastrar ${this.tablePath}`,
                     notes: `Cadastra dados na tabela ${this.tablePath}. \n
@@ -58,8 +69,9 @@ class TabelasRoutes extends BaseRoute {
                     },
 
                 },
-                handler: (request, headers) => {
+                handler: async (request, headers) => {
                     const payload = request.payload
+                    payload.senha = await PasswordHelper.hashPassword(payload.senha)
                     return this.db.create(payload)
                 }
             }
@@ -80,6 +92,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             pais: Joi.string().max(50).required(),
                             estado: Joi.string().max(50).required(),
@@ -115,6 +130,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             nome_fantasia: Joi.string().max(100).required(),
                             id_cliente: Joi.number().required()
@@ -144,6 +162,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             descricao: Joi.string().max(100).required()
                         }
@@ -173,6 +194,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             id_ponto_coleta: Joi.number().required(),
                             id_material_reciclado: Joi.number().required()
@@ -202,6 +226,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             descricao: Joi.string().max(500).required(),
                             status: Joi.boolean().default(false),
@@ -237,6 +264,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                           },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             nome: Joi.string().max(100),
                             documento: Joi.string().max(14),
@@ -271,6 +301,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             pais: Joi.string().max(50),
                             estado: Joi.string().max(50),
@@ -307,6 +340,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             nome_fantasia: Joi.string().max(100),
                             id_cliente: Joi.number()
@@ -337,6 +373,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             descricao: Joi.string().max(100)
                         },
@@ -366,6 +405,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             id_ponto_coleta: Joi.number(),
                             id_material_reciclado: Joi.number()
@@ -396,6 +438,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
                         payload: {
                             descricao: Joi.string().max(500),
                             status: Joi.boolean().default(false),
@@ -432,6 +477,9 @@ class TabelasRoutes extends BaseRoute {
                     failAction: (request, h, err) => {
                         throw err;
                     },
+                    headers: Joi.object({
+                        authorization: Joi.string().required()
+                    }).unknown(),
                     params: {
                         id: Joi.string().required()
                     }
