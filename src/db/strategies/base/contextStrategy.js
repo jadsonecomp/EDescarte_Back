@@ -18,6 +18,10 @@ class ContextStrategy extends IDb {
     return this._database.create(item);
   }
 
+  bulkCreate(item) {
+    return this._database.bulkCreate(item);
+  }
+
   read(item) {
     return this._database.read(item);
   }

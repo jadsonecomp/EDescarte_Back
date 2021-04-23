@@ -9,6 +9,10 @@ class IDb {
     throw new NotImplementedException();
   }
 
+  bulkCreate(item) {
+    throw new NotImplementedException();
+  }
+
   read(item) {
     throw new NotImplementedException();
   }

@@ -6,6 +6,7 @@ const clienteRoute = 'cliente'
 const enderecoRoute = 'endereco'
 const pontoColetaRoute = 'ponto_coleta'
 const materialRecicladoRoute = 'material_reciclado'
+const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
 const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
 
@@ -62,6 +63,7 @@ class TabelasRoutes extends BaseRoute {
                             nome: Joi.string().max(100).required(),
                             documento: Joi.string().max(14).required(),
                             telefone: Joi.string().max(20).required(),
+                            celular: Joi.string().max(20),
                             email: Joi.string().max(50).required(),
                             login: Joi.string().max(20).required(),
                             senha: Joi.string().max(20).required()
@@ -83,6 +85,8 @@ class TabelasRoutes extends BaseRoute {
                 method: 'POST',
                 config: {
 
+                    auth: false, //Não pedir autorização nessa rota
+
                     description: `Cadastrar ${this.tablePath}`,
                     notes: `Cadastra dados na tabela ${this.tablePath}. \n
                             Necessário informar os dados do país, bairro, cidade, rua, número, cep e o cliente`,
@@ -92,9 +96,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
-                        headers: Joi.object({
-                            authorization: Joi.string().required()
-                        }).unknown(),
+                        // headers: Joi.object({
+                        //     authorization: Joi.string().required()
+                        // }).unknown(),
                         payload: {
                             pais: Joi.string().max(50).required(),
                             estado: Joi.string().max(50).required(),
@@ -121,6 +125,8 @@ class TabelasRoutes extends BaseRoute {
                 method: 'POST',
                 config: {
 
+                    auth: false, //Não pedir autorização nessa rota
+
                     description: `Cadastrar ${this.tablePath}`,
                     notes: `Cadastra dados na tabela ${this.tablePath}. \n
                             Necessário informar o nome fantasia da empresa e o id do cliente`,
@@ -130,9 +136,9 @@ class TabelasRoutes extends BaseRoute {
                         failAction: (request, h, err) => {
                             throw err;
                         },
-                        headers: Joi.object({
-                            authorization: Joi.string().required()
-                        }).unknown(),
+                        // headers: Joi.object({
+                        //     authorization: Joi.string().required()
+                        // }).unknown(),
                         payload: {
                             nome_fantasia: Joi.string().max(100).required(),
                             id_cliente: Joi.number().required()
@@ -176,6 +182,43 @@ class TabelasRoutes extends BaseRoute {
                     return this.db.create(payload)
                 }
             }
+        
+        // } else if(`${this.tablePath}` === materialRecicladoEmMassaRoute){
+
+        //     return {
+        //         path: `/${materialRecicladoEmMassaRoute}`,
+        //         method: 'POST',
+        //         config: {
+
+        //             auth: false, //Não pedir autorização nessa rota
+
+        //             description: `Cadastrar ${materialRecicladoRoute}`,
+        //             notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
+        //                     Necessário informar array com o nome do material reciclado`,
+        //             tags: ['api'], 
+
+        //             validate: {
+        //                 failAction: (request, h, err) => {
+        //                     throw err;
+        //                 },
+        //                 // headers: Joi.object({
+        //                 //     authorization: Joi.string().required()
+        //                 // }).unknown(),
+        //                 payload: {
+        //                     descricao: Joi.string().max(100).required()
+        //                 }
+        //             },
+
+        //         },
+        //         handler: (request, headers) => {
+        //             const payload = request.payload
+        //             console.log("Aqui1")
+        //             return this.db.bulkCreate(payload)
+        //             console.log("Aqui2")
+        //         }
+        //     }
+
+
 
         } else if(`${this.tablePath}` === pontoMaterialRoute){
 
@@ -248,6 +291,44 @@ class TabelasRoutes extends BaseRoute {
 
 
     }
+    // bulkCreate() {
+    //     console.log("Aqui1")
+    //     if(`${this.tablePath}` === materialRecicladoRoute){
+    //         console.log("Aqui2")
+    //         return {
+    //             path: `/${materialRecicladoEmMassaRoute}`,
+    //             method: 'POST',
+    //             config: {
+
+    //                 auth: false, //Não pedir autorização nessa rota
+
+    //                 description: `Cadastrar ${this.tablePath}`,
+    //                 notes: `Cadastra dados em massa na tabela ${this.tablePath}. \n
+    //                         Necessário informar array com o nome do material reciclado`,
+    //                 tags: ['api'], 
+
+    //                 validate: {
+    //                     failAction: (request, h, err) => {
+    //                         throw err;
+    //                     },
+    //                     // headers: Joi.object({
+    //                     //     authorization: Joi.string().required()
+    //                     // }).unknown(),
+    //                     // payload: {
+    //                     //     descricao: Joi.string().max(100).required()
+    //                     // }
+    //                 },
+
+    //             },
+    //             handler: (request, headers) => {
+    //                 const payload = request.payload
+    //                 return this.db.bulkCreate(payload)
+    //             }
+    //         }
+
+    //     }
+
+    // }
     update() {
 
         if(`${this.tablePath}` === clienteRoute){

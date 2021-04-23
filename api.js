@@ -35,6 +35,8 @@ const DescarteSchema = require('./src/db/strategies/postgres/schemas/descarteSch
 const TabelasRoutes = require('./src/routes/tabelasRoutes')
 const AuthRoutes = require('./src/routes/authRoutes')
 
+const fetch = require('node-fetch');
+
 const HapiSwagger = require('hapi-swagger')
 const Inert = require('inert')//require('@hapi/inert')
 const Vision = require('vision')//require('@hapi/vision')
@@ -64,14 +66,41 @@ const pontoColetaRoute = 'ponto_coleta'
 const materialRecicladoRoute = 'material_reciclado'
 const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
+const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
 
 const app = new Hapi.Server({
+    routes: { cors: true },
     port: process.env.PORT//4000
 })
 
 function mapRoutes(instance, methods) {
     return methods.map(method => instance[method]())
 }
+
+const MATERIAISRECICLADOS = require('./tiposMaterialReciclado');
+
+function setMaterialReciclado(uriBase){
+    try {    
+        return fetch(`${uriBase}/${materialRecicladoEmMassaRoute}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(MATERIAISRECICLADOS)
+        }).then(response => {
+            return response.json();
+            })  
+        .then(json => {
+                console.log('Base com materiais recicláveis cadastrados importada com sucesso')
+                return json;  
+            })    
+        .catch(err => console.log('Request Failed - Erro ao importar base de materiais recicláveis: ', err)); 
+    } catch (error) {
+        console.log('Erro ao importar base de materiais recicláveis: ', error)
+    }
+}
+
 
 async function main() {
     
@@ -239,22 +268,68 @@ async function main() {
 
     app.auth.default('jwt')
 
-    // app.validator(Joi)
     app.route([
 
         ...mapRoutes(new TabelasRoutes(contextCliente, clienteRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextEndereco, enderecoRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextPontoColeta, pontoColetaRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextMaterialReciclado, materialRecicladoRoute), TabelasRoutes.methods()),
+        // ...mapRoutes(new TabelasRoutes(contextMaterialReciclado, materialRecicladoEmMassaRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextPontoMaterial, pontoMaterialRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextDescarte, descarteRoute), TabelasRoutes.methods()),
-        ...mapRoutes(new AuthRoutes(MINHA_CHAVE_SECRETA, contextCliente), AuthRoutes.methods())
+        ...mapRoutes(new AuthRoutes(MINHA_CHAVE_SECRETA, contextCliente), AuthRoutes.methods()),
+        {
+            method: 'POST',
+            path: `/${materialRecicladoEmMassaRoute}`,
+
+            config: {
+
+                    auth: false, //Não pedir autorização nessa rota
+
+                    description: `Cadastrar ${materialRecicladoRoute}`,
+                    notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
+                            Necessário informar array com o nome do material reciclado`,
+                    tags: ['api'], 
+
+                    validate: {
+                        failAction: (request, h, err) => {
+                            throw err;
+                        },
+                        // headers: Joi.object({
+                        //     authorization: Joi.string().required()
+                        // }).unknown(),
+                        // payload: {
+                        //     descricao: Joi.string().max(100).required()
+                        // }
+                    },
+
+            },
+
+            handler: async (request, h) => {
+                const payload = request.payload;
+                try {
+                    const perguntaCad = await contextMaterialReciclado.bulkCreate(payload);
+                    return perguntaCad;    
+                } catch (error) {
+                    return error;    
+                }
+                
+            }
+        },
 
     ])
 
-    
     await app.start()
-    console.log('server running at', app.info.port)
+    console.log('server running at port', app.info.port)
+    console.log('server running at uri', app.info.uri)
+
+    setTimeout(async () => {
+        
+        const materiaisRecicladosReturn = await setMaterialReciclado(app.info.uri)
+
+     }, 10000);
+
+    
 
     return app;
 }

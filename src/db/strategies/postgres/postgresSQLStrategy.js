@@ -95,6 +95,12 @@ class PostgreSQLStrategy extends IDb {
     });
   }
 
+  bulkCreate(item) {
+    return this._db.bulkCreate(item, {
+      raw: true
+    });
+  }
+
   read(item, modelPk = '') {
     return this._db.findAll({
       where: item,
