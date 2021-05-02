@@ -39,6 +39,7 @@ class AuthRoutes extends BaseRoute {
                     login: login//username.toLowerCase()
                 })
 
+
                 if (!user) {
                     return Boom.unauthorized('O usuario informado nao existe')
                 }

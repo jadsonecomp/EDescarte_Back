@@ -34,6 +34,9 @@ const PontoMaterialSchema = require('./src/db/strategies/postgres/schemas/pontoM
 const DescarteSchema = require('./src/db/strategies/postgres/schemas/descarteSchema')
 const TabelasRoutes = require('./src/routes/tabelasRoutes')
 const AuthRoutes = require('./src/routes/authRoutes')
+const ClienteByLoginRoute = require('./src/routes/clienteByLoginRoute')
+const EnderecoByClienteRoute = require('./src/routes/enderecoByCliente')
+const MaterialRecicladoEmMassaRoute = require('./src/routes/materialRecicladoEmMassaRoute')
 
 const fetch = require('node-fetch');
 
@@ -277,45 +280,10 @@ async function main() {
         // ...mapRoutes(new TabelasRoutes(contextMaterialReciclado, materialRecicladoEmMassaRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextPontoMaterial, pontoMaterialRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextDescarte, descarteRoute), TabelasRoutes.methods()),
+        ...mapRoutes(new ClienteByLoginRoute(contextCliente, clienteRoute), ClienteByLoginRoute.methods()),
+        ...mapRoutes(new EnderecoByClienteRoute(contextEndereco, enderecoRoute), EnderecoByClienteRoute.methods()),
+        ...mapRoutes(new MaterialRecicladoEmMassaRoute(contextMaterialReciclado, materialRecicladoRoute), MaterialRecicladoEmMassaRoute.methods()),
         ...mapRoutes(new AuthRoutes(MINHA_CHAVE_SECRETA, contextCliente), AuthRoutes.methods()),
-        {
-            method: 'POST',
-            path: `/${materialRecicladoEmMassaRoute}`,
-
-            config: {
-
-                    auth: false, //Não pedir autorização nessa rota
-
-                    description: `Cadastrar ${materialRecicladoRoute}`,
-                    notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
-                            Necessário informar array com o nome do material reciclado`,
-                    tags: ['api'], 
-
-                    validate: {
-                        failAction: (request, h, err) => {
-                            throw err;
-                        },
-                        // headers: Joi.object({
-                        //     authorization: Joi.string().required()
-                        // }).unknown(),
-                        // payload: {
-                        //     descricao: Joi.string().max(100).required()
-                        // }
-                    },
-
-            },
-
-            handler: async (request, h) => {
-                const payload = request.payload;
-                try {
-                    const perguntaCad = await contextMaterialReciclado.bulkCreate(payload);
-                    return perguntaCad;    
-                } catch (error) {
-                    return error;    
-                }
-                
-            }
-        },
 
     ])
 

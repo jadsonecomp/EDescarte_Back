@@ -2,6 +2,8 @@ const BaseRoute = require('./base/baseRoute')
 const Joi = require('joi')
 const PasswordHelper = require('./../helpers/passwordHelper')
 
+const fetch = require('node-fetch');
+
 const clienteRoute = 'cliente'
 const enderecoRoute = 'endereco'
 const pontoColetaRoute = 'ponto_coleta'
@@ -9,6 +11,35 @@ const materialRecicladoRoute = 'material_reciclado'
 const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
 const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
+
+const nominatimURI = 'https://nominatim.openstreetmap.org/search?format=json&limit=3&q='
+let latitude = ''
+let longitude = ''
+
+function atualizaCoordenadasGeometricas(uri){
+    try {    
+        return fetch(`${uri}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors'
+        }).then(response => {
+            return response.json();
+            })  
+        .then(json => {
+                console.log('Coordenadas geométricas encontradas com sucesso')
+                latitude = json[0].lat
+                longitude = json[0].lon
+                return json;  
+            })    
+        .catch(err => console.log('Request Failed - Erro ao buscar coordenadas geométricas: ', err)); 
+    } catch (error) {
+        console.log('ao buscar coordenadas geométricas: ', error)
+    }
+}
+
+
 
 class TabelasRoutes extends BaseRoute {
     constructor(db, tablePath) {
@@ -36,6 +67,29 @@ class TabelasRoutes extends BaseRoute {
             },
             handler: (request, headers) => {
                 return this.db.read()
+            }
+        }
+    }
+    listId() {
+        return {
+            path: `/${this.tablePath}/{id}`,
+            method: 'GET',
+            config: {
+                description: `Listar ${this.tablePath}`,
+                notes: `Busca o dado da tabela ${this.tablePath} pelo id`,
+                tags: ['api'], // ADD THIS TAG
+                validate: {
+                    headers: Joi.object({
+                        authorization: Joi.string().required()
+                    }).unknown()
+                }
+            },
+            handler: (request, headers) => {
+                const id = request.params.id;
+                
+                return this.db.read({
+                    id: id
+                })
             }
         }
     }
@@ -107,13 +161,22 @@ class TabelasRoutes extends BaseRoute {
                             rua: Joi.string().max(70).required(),
                             numero: Joi.string().max(6).required(),
                             cep: Joi.string().max(20).required(),
+                            latitude: Joi.string().min(0).max(50),
+                            longitude: Joi.string().min(0).max(50),
                             id_cliente: Joi.number().required()
                         }
                     },
 
                 },
-                handler: (request, headers) => {
+                handler: async (request, headers) => {
                     const payload = request.payload
+
+                    const uriCoords = `${nominatimURI}"${payload.rua}, ${payload.numero}, ${payload.bairro}, ${payload.cidade}"`
+                    const coodGeometricas = await atualizaCoordenadasGeometricas(uriCoords)
+
+                    payload.latitude = latitude
+                    payload.longitude = longitude
+
                     return this.db.create(payload)
                 }
             }
@@ -393,6 +456,8 @@ class TabelasRoutes extends BaseRoute {
                             rua: Joi.string().max(70),
                             numero: Joi.string().max(6),
                             cep: Joi.string().max(20),
+                            latitude: Joi.string().max(50),
+                            longitude: Joi.string().max(50),
                             id_cliente: Joi.number()
                         },
                         params: {
@@ -401,9 +466,18 @@ class TabelasRoutes extends BaseRoute {
                     },
 
                 },
-                handler: (request, headers) => {
+                handler: async (request, headers) => {
                     const payload = request.payload;
                     const id = request.params.id;
+
+                    // Vindo pela interface, sempre vou ter todos os campos
+                    const uriCoords = `${nominatimURI}"${payload.rua}, ${payload.numero}, ${payload.bairro}, ${payload.cidade}"`
+                    const coodGeometricas = await atualizaCoordenadasGeometricas(uriCoords)
+
+                    payload.latitude = latitude
+                    payload.longitude = longitude
+
+
                     return this.db.update(id, payload)
                 }
             }

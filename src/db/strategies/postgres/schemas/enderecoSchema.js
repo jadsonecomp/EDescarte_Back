@@ -51,6 +51,18 @@ const EnderecoSchema = {
             allowNull: false,
             
         },
+        latitude: {
+            type: Sequelize.STRING(50),
+            require: false,
+            allowNull: true,
+            
+        },
+        longitude: {
+            type: Sequelize.STRING(50),
+            require: false,
+            allowNull: true,
+            
+        },
         id_cliente: {
             type: Sequelize.INTEGER,
             require: true,

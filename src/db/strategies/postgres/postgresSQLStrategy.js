@@ -101,7 +101,7 @@ class PostgreSQLStrategy extends IDb {
     });
   }
 
-  read(item, modelPk = '') {
+  read(item) {
     return this._db.findAll({
       where: item,
       raw: true
