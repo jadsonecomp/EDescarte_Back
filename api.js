@@ -37,6 +37,11 @@ const AuthRoutes = require('./src/routes/authRoutes')
 const ClienteByLoginRoute = require('./src/routes/clienteByLoginRoute')
 const EnderecoByClienteRoute = require('./src/routes/enderecoByCliente')
 const MaterialRecicladoEmMassaRoute = require('./src/routes/materialRecicladoEmMassaRoute')
+const ClienteEmMassaRoute = require('./src/routes/clienteEmMassaRoute')
+const EnderecoEmMassaRoute = require('./src/routes/enderecoEmMassa')
+const PontoColetaEmMassaRoute = require('./src/routes/pontoColetaEmMassa')
+const PontoMaterialEmMassaRoute = require('./src/routes/pontoMaterialEmMassaRoute')
+const PontoMaterialByMaterialRecicladoRoute = require('./src/routes/pontoMaterialByMaterialReciclado')
 
 const fetch = require('node-fetch');
 
@@ -70,6 +75,11 @@ const materialRecicladoRoute = 'material_reciclado'
 const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
 const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
+const clienteEmMassaRoute = 'cliente_em_massa'
+const enderecoEmMassaRoute = 'endereco_em_massa'
+const pontoColetaEmMassaRoute = 'ponto_coleta_em_massa'
+const pontoMaterialEmMassaRoute = 'ponto_material_em_massa'
+const pontoMaterialByMaterialRecicladoRoute = 'ponto_material_reciclado'
 
 const app = new Hapi.Server({
     routes: { cors: true },
@@ -81,6 +91,10 @@ function mapRoutes(instance, methods) {
 }
 
 const MATERIAISRECICLADOS = require('./tiposMaterialReciclado');
+const CLIENTESPONTOCOLETA = require('./clientesPontoColeta');
+const ENDERECOSPONTOCOLETA = require('./enderecos');
+const PONTOSCOLETA = require('./pontosColeta');
+const PONTOSMATERIAL = require('./materiaisRecicladosPontosColeta')
 
 function setMaterialReciclado(uriBase){
     try {    
@@ -101,6 +115,94 @@ function setMaterialReciclado(uriBase){
         .catch(err => console.log('Request Failed - Erro ao importar base de materiais recicláveis: ', err)); 
     } catch (error) {
         console.log('Erro ao importar base de materiais recicláveis: ', error)
+    }
+}
+
+function setClientes(uriBase){
+    try {    
+        return fetch(`${uriBase}/${clienteEmMassaRoute}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(CLIENTESPONTOCOLETA)
+        }).then(response => {
+            return response.json();
+            })  
+        .then(json => {
+                console.log('Base com clientes dos pontos de coleta importada com sucesso')
+                return json;  
+            })    
+        .catch(err => console.log('Request Failed - Erro ao importar base de clientes  dos pontos de coleta: ', err)); 
+    } catch (error) {
+        console.log('Erro ao importar base de clientes  dos pontos de coleta: ', error)
+    }
+}
+
+function setEnderecos(uriBase){
+    try {    
+        return fetch(`${uriBase}/${enderecoEmMassaRoute}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(ENDERECOSPONTOCOLETA)
+        }).then(response => {
+            return response.json();
+            })  
+        .then(json => {
+                console.log('Base com endereços dos pontos de coleta importada com sucesso')
+                return json;  
+            })    
+        .catch(err => console.log('Request Failed - Erro ao importar base de endereços dos pontos de coleta: ', err)); 
+    } catch (error) {
+        console.log('Erro ao importar base de endereços dos pontos de coleta: ', error)
+    }
+}
+
+function setPontosColeta(uriBase){
+    try {    
+        return fetch(`${uriBase}/${pontoColetaEmMassaRoute}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(PONTOSCOLETA)
+        }).then(response => {
+            return response.json();
+            })  
+        .then(json => {
+                console.log('Base com pontos de coleta importada com sucesso')
+                return json;  
+            })    
+        .catch(err => console.log('Request Failed - Erro ao importar base de pontos de coleta: ', err)); 
+    } catch (error) {
+        console.log('Erro ao importar base de pontos de coleta: ', error)
+    }
+}
+
+function setPontosMaterial(uriBase){
+    try {    
+        return fetch(`${uriBase}/${pontoMaterialEmMassaRoute}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors',
+            body: JSON.stringify(PONTOSMATERIAL)
+        }).then(response => {
+            return response.json();
+            })  
+        .then(json => {
+                console.log('Base com pontos material importada com sucesso')
+                return json;  
+            })    
+        .catch(err => console.log('Request Failed - Erro ao importar base de pontos material: ', err)); 
+    } catch (error) {
+        console.log('Erro ao importar base de pontos material: ', error)
     }
 }
 
@@ -283,6 +385,11 @@ async function main() {
         ...mapRoutes(new ClienteByLoginRoute(contextCliente, clienteRoute), ClienteByLoginRoute.methods()),
         ...mapRoutes(new EnderecoByClienteRoute(contextEndereco, enderecoRoute), EnderecoByClienteRoute.methods()),
         ...mapRoutes(new MaterialRecicladoEmMassaRoute(contextMaterialReciclado, materialRecicladoRoute), MaterialRecicladoEmMassaRoute.methods()),
+        ...mapRoutes(new ClienteEmMassaRoute(contextCliente, clienteRoute), ClienteEmMassaRoute.methods()),
+        ...mapRoutes(new EnderecoEmMassaRoute(contextEndereco, enderecoRoute), EnderecoEmMassaRoute.methods()),
+        ...mapRoutes(new PontoColetaEmMassaRoute(contextPontoColeta, pontoColetaRoute), PontoColetaEmMassaRoute.methods()),
+        ...mapRoutes(new PontoMaterialEmMassaRoute(contextPontoMaterial, pontoMaterialRoute), PontoMaterialEmMassaRoute.methods()),
+        ...mapRoutes(new PontoMaterialByMaterialRecicladoRoute(contextPontoMaterial, pontoMaterialRoute), PontoMaterialByMaterialRecicladoRoute.methods()),
         ...mapRoutes(new AuthRoutes(MINHA_CHAVE_SECRETA, contextCliente), AuthRoutes.methods()),
 
     ])
@@ -294,6 +401,15 @@ async function main() {
     setTimeout(async () => {
         
         const materiaisRecicladosReturn = await setMaterialReciclado(app.info.uri)
+
+        const clientesReturn = await setClientes(app.info.uri)
+
+        const enderecosReturn = await setEnderecos(app.info.uri)
+
+        const pontosColetaReturn = await setPontosColeta(app.info.uri)
+
+        const pontosMaterialReturn = await setPontosMaterial(app.info.uri)
+
 
      }, 10000);
 

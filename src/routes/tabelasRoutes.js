@@ -8,7 +8,6 @@ const clienteRoute = 'cliente'
 const enderecoRoute = 'endereco'
 const pontoColetaRoute = 'ponto_coleta'
 const materialRecicladoRoute = 'material_reciclado'
-const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
 const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
 
@@ -245,42 +244,6 @@ class TabelasRoutes extends BaseRoute {
                     return this.db.create(payload)
                 }
             }
-        
-        // } else if(`${this.tablePath}` === materialRecicladoEmMassaRoute){
-
-        //     return {
-        //         path: `/${materialRecicladoEmMassaRoute}`,
-        //         method: 'POST',
-        //         config: {
-
-        //             auth: false, //Não pedir autorização nessa rota
-
-        //             description: `Cadastrar ${materialRecicladoRoute}`,
-        //             notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
-        //                     Necessário informar array com o nome do material reciclado`,
-        //             tags: ['api'], 
-
-        //             validate: {
-        //                 failAction: (request, h, err) => {
-        //                     throw err;
-        //                 },
-        //                 // headers: Joi.object({
-        //                 //     authorization: Joi.string().required()
-        //                 // }).unknown(),
-        //                 payload: {
-        //                     descricao: Joi.string().max(100).required()
-        //                 }
-        //             },
-
-        //         },
-        //         handler: (request, headers) => {
-        //             const payload = request.payload
-        //             console.log("Aqui1")
-        //             return this.db.bulkCreate(payload)
-        //             console.log("Aqui2")
-        //         }
-        //     }
-
 
 
         } else if(`${this.tablePath}` === pontoMaterialRoute){
@@ -354,44 +317,6 @@ class TabelasRoutes extends BaseRoute {
 
 
     }
-    // bulkCreate() {
-    //     console.log("Aqui1")
-    //     if(`${this.tablePath}` === materialRecicladoRoute){
-    //         console.log("Aqui2")
-    //         return {
-    //             path: `/${materialRecicladoEmMassaRoute}`,
-    //             method: 'POST',
-    //             config: {
-
-    //                 auth: false, //Não pedir autorização nessa rota
-
-    //                 description: `Cadastrar ${this.tablePath}`,
-    //                 notes: `Cadastra dados em massa na tabela ${this.tablePath}. \n
-    //                         Necessário informar array com o nome do material reciclado`,
-    //                 tags: ['api'], 
-
-    //                 validate: {
-    //                     failAction: (request, h, err) => {
-    //                         throw err;
-    //                     },
-    //                     // headers: Joi.object({
-    //                     //     authorization: Joi.string().required()
-    //                     // }).unknown(),
-    //                     // payload: {
-    //                     //     descricao: Joi.string().max(100).required()
-    //                     // }
-    //                 },
-
-    //             },
-    //             handler: (request, headers) => {
-    //                 const payload = request.payload
-    //                 return this.db.bulkCreate(payload)
-    //             }
-    //         }
-
-    //     }
-
-    // }
     update() {
 
         if(`${this.tablePath}` === clienteRoute){

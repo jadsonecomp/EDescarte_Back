@@ -45,7 +45,6 @@ class AuthRoutes extends BaseRoute {
                 }
 
                 const match = await PasswordHelper.comparePassword(senha, user.senha)
-
                 if (!match) {
                     return Boom.unauthorized('O usuario e senha invalidos!')
                 }

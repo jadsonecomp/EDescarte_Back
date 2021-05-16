@@ -1,10 +1,10 @@
 const BaseRoute = require('./base/baseRoute')
 
-const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
-const materialRecicladoRoute = 'material_reciclado'
+const pontoMaterialEmMassaRoute = 'ponto_material_em_massa'
+const pontoMaterialRoute = 'ponto_material'
 
 
-class MaterialRecicladoEmMassaRoute extends BaseRoute {
+class PontoMaterialEmMassaRoute extends BaseRoute {
     constructor(db, tablePath) {
         super()
         this.db = db
@@ -12,21 +12,21 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
     }
 
     
-    postMaterialRecicladoEmMassa() {
+    postPontoMaterialEmMassa() {
 
-        if(`${this.tablePath}` === materialRecicladoRoute){
+        if(`${this.tablePath}` === pontoMaterialRoute){
 
             return {
                 method: 'POST',
-                path: `/${materialRecicladoEmMassaRoute}`,
+                path: `/${pontoMaterialEmMassaRoute}`,
     
                 config: {
     
                         auth: false, //Não pedir autorização nessa rota
     
-                        description: `Cadastrar ${materialRecicladoRoute}`,
-                        notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
-                                Necessário informar array com os materiais reciclados`,
+                        description: `Cadastrar ${pontoMaterialRoute}`,
+                        notes: `Cadastra dados em massa na tabela ${pontoMaterialRoute}. \n
+                                Necessário informar array com os pontos de Material`,
                         tags: ['api'], 
     
                         validate: {
@@ -40,8 +40,8 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
                 handler: async (request, h) => {
                     const payload = request.payload;
                     try {
-                        const perguntaCad = await this.db.bulkCreate(payload);
-                        return perguntaCad;    
+                        const pontosMaterialCad = await this.db.bulkCreate(payload);
+                        return pontosMaterialCad;    
                     } catch (error) {
                         return error;    
                     }
@@ -56,4 +56,4 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
 
 }
 
-module.exports = MaterialRecicladoEmMassaRoute
+module.exports = PontoMaterialEmMassaRoute

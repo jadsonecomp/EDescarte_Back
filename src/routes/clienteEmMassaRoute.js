@@ -1,10 +1,10 @@
 const BaseRoute = require('./base/baseRoute')
 
-const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
-const materialRecicladoRoute = 'material_reciclado'
+const clienteEmMassaRoute = 'cliente_em_massa'
+const clienteRoute = 'cliente'
 
 
-class MaterialRecicladoEmMassaRoute extends BaseRoute {
+class ClienteEmMassaRoute extends BaseRoute {
     constructor(db, tablePath) {
         super()
         this.db = db
@@ -12,21 +12,21 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
     }
 
     
-    postMaterialRecicladoEmMassa() {
+    postClienteEmMassa() {
 
-        if(`${this.tablePath}` === materialRecicladoRoute){
+        if(`${this.tablePath}` === clienteRoute){
 
             return {
                 method: 'POST',
-                path: `/${materialRecicladoEmMassaRoute}`,
+                path: `/${clienteEmMassaRoute}`,
     
                 config: {
     
                         auth: false, //Não pedir autorização nessa rota
     
-                        description: `Cadastrar ${materialRecicladoRoute}`,
-                        notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
-                                Necessário informar array com os materiais reciclados`,
+                        description: `Cadastrar ${clienteRoute}`,
+                        notes: `Cadastra dados em massa na tabela ${clienteRoute}. \n
+                                Necessário informar array com os clientes`,
                         tags: ['api'], 
     
                         validate: {
@@ -40,8 +40,8 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
                 handler: async (request, h) => {
                     const payload = request.payload;
                     try {
-                        const perguntaCad = await this.db.bulkCreate(payload);
-                        return perguntaCad;    
+                        const clienteCad = await this.db.bulkCreate(payload);
+                        return clienteCad;    
                     } catch (error) {
                         return error;    
                     }
@@ -56,4 +56,4 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
 
 }
 
-module.exports = MaterialRecicladoEmMassaRoute
+module.exports = ClienteEmMassaRoute

@@ -1,10 +1,10 @@
 const BaseRoute = require('./base/baseRoute')
 
-const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
-const materialRecicladoRoute = 'material_reciclado'
+const pontoColetaEmMassaRoute = 'ponto_coleta_em_massa'
+const pontoColetaRoute = 'ponto_coleta'
 
 
-class MaterialRecicladoEmMassaRoute extends BaseRoute {
+class PontoColetaEmMassaRoute extends BaseRoute {
     constructor(db, tablePath) {
         super()
         this.db = db
@@ -12,21 +12,21 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
     }
 
     
-    postMaterialRecicladoEmMassa() {
+    postPontoColetaEmMassa() {
 
-        if(`${this.tablePath}` === materialRecicladoRoute){
+        if(`${this.tablePath}` === pontoColetaRoute){
 
             return {
                 method: 'POST',
-                path: `/${materialRecicladoEmMassaRoute}`,
+                path: `/${pontoColetaEmMassaRoute}`,
     
                 config: {
     
                         auth: false, //Não pedir autorização nessa rota
     
-                        description: `Cadastrar ${materialRecicladoRoute}`,
-                        notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
-                                Necessário informar array com os materiais reciclados`,
+                        description: `Cadastrar ${pontoColetaRoute}`,
+                        notes: `Cadastra dados em massa na tabela ${pontoColetaRoute}. \n
+                                Necessário informar array com os pontos de coleta`,
                         tags: ['api'], 
     
                         validate: {
@@ -40,8 +40,8 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
                 handler: async (request, h) => {
                     const payload = request.payload;
                     try {
-                        const perguntaCad = await this.db.bulkCreate(payload);
-                        return perguntaCad;    
+                        const pontosColetaCad = await this.db.bulkCreate(payload);
+                        return pontosColetaCad;    
                     } catch (error) {
                         return error;    
                     }
@@ -56,4 +56,4 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
 
 }
 
-module.exports = MaterialRecicladoEmMassaRoute
+module.exports = PontoColetaEmMassaRoute

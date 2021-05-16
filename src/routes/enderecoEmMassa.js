@@ -1,10 +1,10 @@
 const BaseRoute = require('./base/baseRoute')
 
-const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
-const materialRecicladoRoute = 'material_reciclado'
+const enderecoEmMassaRoute = 'endereco_em_massa'
+const enderecoRoute = 'endereco'
 
 
-class MaterialRecicladoEmMassaRoute extends BaseRoute {
+class EnderecoEmMassaRoute extends BaseRoute {
     constructor(db, tablePath) {
         super()
         this.db = db
@@ -12,21 +12,21 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
     }
 
     
-    postMaterialRecicladoEmMassa() {
+    postEnderecoEmMassa() {
 
-        if(`${this.tablePath}` === materialRecicladoRoute){
+        if(`${this.tablePath}` === enderecoRoute){
 
             return {
                 method: 'POST',
-                path: `/${materialRecicladoEmMassaRoute}`,
+                path: `/${enderecoEmMassaRoute}`,
     
                 config: {
     
                         auth: false, //Não pedir autorização nessa rota
     
-                        description: `Cadastrar ${materialRecicladoRoute}`,
-                        notes: `Cadastra dados em massa na tabela ${materialRecicladoRoute}. \n
-                                Necessário informar array com os materiais reciclados`,
+                        description: `Cadastrar ${enderecoRoute}`,
+                        notes: `Cadastra dados em massa na tabela ${enderecoRoute}. \n
+                                Necessário informar array com os endereços`,
                         tags: ['api'], 
     
                         validate: {
@@ -40,8 +40,8 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
                 handler: async (request, h) => {
                     const payload = request.payload;
                     try {
-                        const perguntaCad = await this.db.bulkCreate(payload);
-                        return perguntaCad;    
+                        const enderecoCad = await this.db.bulkCreate(payload);
+                        return enderecoCad;    
                     } catch (error) {
                         return error;    
                     }
@@ -56,4 +56,4 @@ class MaterialRecicladoEmMassaRoute extends BaseRoute {
 
 }
 
-module.exports = MaterialRecicladoEmMassaRoute
+module.exports = EnderecoEmMassaRoute
