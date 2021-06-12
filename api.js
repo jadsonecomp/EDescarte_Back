@@ -43,6 +43,8 @@ const PontoColetaEmMassaRoute = require('./src/routes/pontoColetaEmMassa')
 const PontoMaterialEmMassaRoute = require('./src/routes/pontoMaterialEmMassaRoute')
 const PontoMaterialByMaterialRecicladoRoute = require('./src/routes/pontoMaterialByMaterialReciclado')
 const DescarteEmMassaRoute = require('./src/routes/descarteEmMassaRoute')
+const PontoColetaByClienteRoute = require('./src/routes/pontoColetaByClienteRoute')
+const PontoMaterialByPontoColetaRoute = require('./src/routes/pontoMaterialByPontoColeta')
 
 const fetch = require('node-fetch');
 
@@ -82,6 +84,8 @@ const pontoColetaEmMassaRoute = 'ponto_coleta_em_massa'
 const pontoMaterialEmMassaRoute = 'ponto_material_em_massa'
 const pontoMaterialByMaterialRecicladoRoute = 'ponto_material_reciclado'
 const descarteEmMassaRoute = 'descarte_em_massa'
+const pontoColetaByClienteRoute = 'ponto_coleta_cliente'
+const pontoMaterialByPontoColetaRoute = 'ponto_material_coleta'
 
 const app = new Hapi.Server({
     routes: { cors: true },
@@ -393,6 +397,8 @@ async function main() {
         ...mapRoutes(new PontoMaterialEmMassaRoute(contextPontoMaterial, pontoMaterialRoute), PontoMaterialEmMassaRoute.methods()),
         ...mapRoutes(new PontoMaterialByMaterialRecicladoRoute(contextPontoMaterial, pontoMaterialRoute), PontoMaterialByMaterialRecicladoRoute.methods()),
         ...mapRoutes(new DescarteEmMassaRoute(contextDescarte, descarteRoute), DescarteEmMassaRoute.methods()),
+        ...mapRoutes(new PontoColetaByClienteRoute(contextPontoColeta, pontoColetaRoute), PontoColetaByClienteRoute.methods()),
+        ...mapRoutes(new PontoMaterialByPontoColetaRoute(contextPontoMaterial, contextMaterialReciclado, pontoMaterialRoute), PontoMaterialByPontoColetaRoute.methods()),
         ...mapRoutes(new AuthRoutes(MINHA_CHAVE_SECRETA, contextCliente), AuthRoutes.methods()),
 
     ])

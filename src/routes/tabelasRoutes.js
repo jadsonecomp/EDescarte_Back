@@ -170,7 +170,8 @@ class TabelasRoutes extends BaseRoute {
                 handler: async (request, headers) => {
                     const payload = request.payload
 
-                    const uriCoords = `${nominatimURI}"${payload.rua}, ${payload.numero}, ${payload.bairro}, ${payload.cidade}"`
+                    const uri = encodeURIComponent(`${payload.rua}, ${payload.numero}, ${payload.bairro}, ${payload.cidade}`); 
+                    const uriCoords = `${nominatimURI}"${uri}"`;
                     const coodGeometricas = await atualizaCoordenadasGeometricas(uriCoords)
 
                     payload.latitude = latitude
@@ -340,6 +341,7 @@ class TabelasRoutes extends BaseRoute {
                             nome: Joi.string().max(100),
                             documento: Joi.string().max(14),
                             telefone: Joi.string().max(20),
+                            celular: Joi.string().max(20),
                             email: Joi.string().max(50),
                             login: Joi.string().max(20),
                             senha: Joi.string().max(20)
@@ -350,8 +352,9 @@ class TabelasRoutes extends BaseRoute {
                     },
 
                 },
-                handler: (request, headers) => {
+                handler: async (request, headers) => {
                     const payload = request.payload;
+                    payload.senha = await PasswordHelper.hashPassword(payload.senha);
                     const id = request.params.id;
                     return this.db.update(id, payload)
                 }
@@ -396,7 +399,9 @@ class TabelasRoutes extends BaseRoute {
                     const id = request.params.id;
 
                     // Vindo pela interface, sempre vou ter todos os campos
-                    const uriCoords = `${nominatimURI}"${payload.rua}, ${payload.numero}, ${payload.bairro}, ${payload.cidade}"`
+                    const uri = encodeURIComponent(`${payload.rua}, ${payload.numero}, ${payload.bairro}, ${payload.cidade}`); 
+                    const uriCoords = `${nominatimURI}"${uri}"`;
+                    
                     const coodGeometricas = await atualizaCoordenadasGeometricas(uriCoords)
 
                     payload.latitude = latitude

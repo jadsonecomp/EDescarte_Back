@@ -117,9 +117,15 @@ class PostgreSQLStrategy extends IDb {
   }
   
   delete(id) {
-    const query = id ? {
-      id
-    } : {};
+    let query = ""
+    if(id.id_ponto_coleta){
+       query = id;
+    }else{
+       query = id ? {
+        id
+      } : {};
+    }
+    
     return this._db.destroy({
       where: query
     });
