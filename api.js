@@ -20,8 +20,6 @@ config({
     path: configPath
 })
 
-
-
 const Hapi = require('hapi')//require('@hapi/hapi')
 const Joi = require('joi')
 const Context = require('./src/db/strategies/base/contextStrategy')
@@ -32,6 +30,7 @@ const PontoColetaSchema = require('./src/db/strategies/postgres/schemas/pontoCol
 const MaterialRecicladoSchema = require('./src/db/strategies/postgres/schemas/materialRecicladoSchema')
 const PontoMaterialSchema = require('./src/db/strategies/postgres/schemas/pontoMaterialSchema')
 const DescarteSchema = require('./src/db/strategies/postgres/schemas/descarteSchema')
+const CampanhaColetaSchema = require('./src/db/strategies/postgres/schemas/campanhaColetaSchema')
 const TabelasRoutes = require('./src/routes/tabelasRoutes')
 const AuthRoutes = require('./src/routes/authRoutes')
 const ClienteByLoginRoute = require('./src/routes/clienteByLoginRoute')
@@ -45,6 +44,7 @@ const PontoMaterialByMaterialRecicladoRoute = require('./src/routes/pontoMateria
 const DescarteEmMassaRoute = require('./src/routes/descarteEmMassaRoute')
 const PontoColetaByClienteRoute = require('./src/routes/pontoColetaByClienteRoute')
 const PontoMaterialByPontoColetaRoute = require('./src/routes/pontoMaterialByPontoColeta')
+const DescarteByPontoColetaByClienteRoute = require('./src/routes/descarteByPontoColetaByClienteRoute')
 
 const fetch = require('node-fetch');
 
@@ -70,6 +70,7 @@ let contextPontoColeta = {}
 let contextMaterialReciclado = {}
 let contextPontoMaterial = {}
 let contextDescarte = {}
+let contextCampanhaColeta = {}
 
 const clienteRoute = 'cliente'
 const enderecoRoute = 'endereco'
@@ -77,6 +78,7 @@ const pontoColetaRoute = 'ponto_coleta'
 const materialRecicladoRoute = 'material_reciclado'
 const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
+const campanhaColetaRoute = 'campanha_coleta'
 const materialRecicladoEmMassaRoute = 'material_reciclado_em_massa'
 const clienteEmMassaRoute = 'cliente_em_massa'
 const enderecoEmMassaRoute = 'endereco_em_massa'
@@ -86,6 +88,8 @@ const pontoMaterialByMaterialRecicladoRoute = 'ponto_material_reciclado'
 const descarteEmMassaRoute = 'descarte_em_massa'
 const pontoColetaByClienteRoute = 'ponto_coleta_cliente'
 const pontoMaterialByPontoColetaRoute = 'ponto_material_coleta'
+const descarteByPontoColetaRoute = 'descarte_ponto_coleta'
+const descarteByClienteRoute = 'descarte_cliente'
 
 const app = new Hapi.Server({
     routes: { cors: true },
@@ -241,7 +245,6 @@ async function main() {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE'
     })
-
     
     PontoColetaSchema.schema.id_cliente.references.model = modelCliente
 
@@ -333,12 +336,35 @@ async function main() {
         onUpdate: 'CASCADE'
     })
 
+    CampanhaColetaSchema.schema.id_ponto_coleta.references.model = modelPontoColeta
+
+    const modelCampanhaColeta = await PostgresDB.defineModel(connection, CampanhaColetaSchema)
+
+    modelPontoColeta.hasMany(modelCampanhaColeta, {
+        foreignKey: {
+            name: 'id_ponto_coleta',
+            allowNull: false},
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+    
+    modelCampanhaColeta.belongsTo(modelPontoColeta, {
+        foreignKey: {
+            name: 'id_ponto_coleta',
+            allowNull: false},
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    })
+
+    
+
     const forceSyncCli = await modelCliente.sync({force: true});
     const forceSyncEnd = await modelEndereco.sync({force: true});
     const forceSyncPC = await modelPontoColeta.sync({force: true});
     const forceSyncMR = await modelMaterialReciclado.sync({force: true});
     const forceSyncPM = await modelPontoMaterial.sync({force: true});
     const forceSyncDes = await modelDescarte.sync({force: true});
+    const forceSyncCC = await modelCampanhaColeta.sync({force: true});
 
     
     contextCliente = new Context(new PostgresDB(connection, modelCliente));
@@ -352,6 +378,8 @@ async function main() {
     contextPontoMaterial = new Context(new PostgresDB(connection, modelPontoMaterial));
     
     contextDescarte = new Context(new PostgresDB(connection, modelDescarte));
+
+    contextCampanhaColeta = new Context(new PostgresDB(connection, modelCampanhaColeta));
     
 
     await app.register([
@@ -376,7 +404,6 @@ async function main() {
         }
     })
 
-
     app.auth.default('jwt')
 
     app.route([
@@ -385,9 +412,9 @@ async function main() {
         ...mapRoutes(new TabelasRoutes(contextEndereco, enderecoRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextPontoColeta, pontoColetaRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextMaterialReciclado, materialRecicladoRoute), TabelasRoutes.methods()),
-        // ...mapRoutes(new TabelasRoutes(contextMaterialReciclado, materialRecicladoEmMassaRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextPontoMaterial, pontoMaterialRoute), TabelasRoutes.methods()),
         ...mapRoutes(new TabelasRoutes(contextDescarte, descarteRoute), TabelasRoutes.methods()),
+        ...mapRoutes(new TabelasRoutes(contextCampanhaColeta, campanhaColetaRoute), TabelasRoutes.methods()),
         ...mapRoutes(new ClienteByLoginRoute(contextCliente, clienteRoute), ClienteByLoginRoute.methods()),
         ...mapRoutes(new EnderecoByClienteRoute(contextEndereco, enderecoRoute), EnderecoByClienteRoute.methods()),
         ...mapRoutes(new MaterialRecicladoEmMassaRoute(contextMaterialReciclado, materialRecicladoRoute), MaterialRecicladoEmMassaRoute.methods()),
@@ -399,6 +426,7 @@ async function main() {
         ...mapRoutes(new DescarteEmMassaRoute(contextDescarte, descarteRoute), DescarteEmMassaRoute.methods()),
         ...mapRoutes(new PontoColetaByClienteRoute(contextPontoColeta, pontoColetaRoute), PontoColetaByClienteRoute.methods()),
         ...mapRoutes(new PontoMaterialByPontoColetaRoute(contextPontoMaterial, contextMaterialReciclado, pontoMaterialRoute), PontoMaterialByPontoColetaRoute.methods()),
+        ...mapRoutes(new DescarteByPontoColetaByClienteRoute(contextDescarte, descarteRoute), DescarteByPontoColetaByClienteRoute.methods()),
         ...mapRoutes(new AuthRoutes(MINHA_CHAVE_SECRETA, contextCliente), AuthRoutes.methods()),
 
     ])

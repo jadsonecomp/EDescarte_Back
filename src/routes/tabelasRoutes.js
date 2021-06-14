@@ -10,6 +10,7 @@ const pontoColetaRoute = 'ponto_coleta'
 const materialRecicladoRoute = 'material_reciclado'
 const pontoMaterialRoute = 'ponto_material'
 const descarteRoute = 'descarte'
+const campanhaColetaRoute = 'campanha_coleta'
 
 const nominatimURI = 'https://nominatim.openstreetmap.org/search?format=json&limit=3&q='
 let latitude = ''
@@ -314,7 +315,42 @@ class TabelasRoutes extends BaseRoute {
                 }
             }
 
+        } else if(`${this.tablePath}` === campanhaColetaRoute){
+
+            return {
+                path: `/${this.tablePath}`,
+                method: 'POST',
+                config: {
+
+                    description: `Cadastrar ${this.tablePath}`,
+                    notes: `Cadastra dados na tabela ${this.tablePath}. \n
+                            Tabela responsável pelas campanhas de coleta, é necessário informar descrição e o ponto de coleta`,
+                    tags: ['api'], 
+
+                    validate: {
+                        failAction: (request, h, err) => {
+                            throw err;
+                        },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
+                        payload: {
+                            descricao: Joi.string().max(10000).required(),
+                            id_ponto_coleta: Joi.number().required(),
+                            data_campanha: Joi.date()
+                        }
+                    },
+
+                },
+                handler: (request, headers) => {
+                    const payload = request.payload
+                    return this.db.create(payload)
+                }
+            }
+
         }
+
+        
 
 
     }
@@ -531,6 +567,40 @@ class TabelasRoutes extends BaseRoute {
                             status: Joi.boolean().default(false),
                             id_cliente: Joi.number(),
                             id_ponto_coleta: Joi.number()
+                        },
+                        params: {
+                            id: Joi.string().required()
+                        }
+                    },
+
+                },
+                handler: (request, headers) => {
+                    const payload = request.payload;
+                    const id = request.params.id;
+                    return this.db.update(id, payload)
+                }
+            }
+        } else if(`${this.tablePath}` === campanhaColetaRoute){
+            return {
+                path: `/${this.tablePath}/{id}`,
+                method: 'PATCH',
+                config: {
+
+                    description: `Atualizar ${this.tablePath}`,
+                    notes: `Atualiza dados na tabela ${this.tablePath}.`,
+                    tags: ['api'], 
+
+                    validate: {
+                        failAction: (request, h, err) => {
+                            throw err;
+                        },
+                        headers: Joi.object({
+                            authorization: Joi.string().required()
+                        }).unknown(),
+                        payload: {
+                            descricao: Joi.string().max(10000),
+                            id_ponto_coleta: Joi.number(),
+                            data_campanha: Joi.date()
                         },
                         params: {
                             id: Joi.string().required()
